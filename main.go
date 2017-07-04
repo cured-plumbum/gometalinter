@@ -724,19 +724,26 @@ func executeLinter(state *linterState) error {
 }
 
 func (l *linterState) fixPath(path string) string {
+	//	pretty.Logln("fixPath in:", path)
+	if !filepath.IsAbs(path) {
+		path = strings.Replace(path, `\`, "/", -1)
+	}
 	lpath := strings.TrimSuffix(l.path, "...")
 	labspath, _ := filepath.Abs(lpath)
 
 	if !l.ShouldChdir() {
-		path = strings.TrimPrefix(path, lpath)
+		path = strings.TrimPrefix(path, strings.Replace(lpath, `\`, "/", -1))
 	}
 
 	if !filepath.IsAbs(path) {
 		path, _ = filepath.Abs(filepath.Join(labspath, path))
 	}
 	if strings.HasPrefix(path, labspath) {
-		return filepath.Join(lpath, strings.TrimPrefix(path, labspath))
+		p := filepath.Join(lpath, strings.TrimPrefix(path, labspath))
+		//		pretty.Logln("fixPath out:", p)
+		return p
 	}
+	//	pretty.Logln("fixPath out:", path)
 	return path
 }
 
